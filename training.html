@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astro – Ethics & Integrity Training</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Montserrat',sans-serif;background:#F5F3EF;color:#1a1a1a;min-height:100vh}
+  :root{
+    --teal:#00353E;--teal-light:#004d5a;--linen:#E0DCD2;--husk:#BD9D4C;
+    --sage:#858B65;--palm:#3E4F37;--slate:#405A5A;--white:#fff;
+    --danger:#C0392B;--success:#2E7D32;--warn:#BD9D4C
+  }
+
+  /* HEADER */
+  .header{background:var(--white);border-bottom:3px solid var(--teal);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .logo{font-size:22px;font-weight:700;letter-spacing:2px}
+  .logo span{color:var(--husk)}
+  .header-sub{font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+
+  /* PROGRESS BAR */
+  .prog-wrap{background:var(--teal);padding:0 32px 14px}
+  .prog-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px}
+  .prog-bar{background:rgba(255,255,255,.15);border-radius:4px;height:5px;overflow:hidden}
+  .prog-fill{background:var(--husk);height:100%;border-radius:4px;transition:width .4s ease}
+
+  /* STEP DOTS */
+  .dots{display:flex;justify-content:center;gap:8px;padding:16px 32px 0;background:var(--teal)}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:background .2s}
+  .dot.active{background:var(--husk)}
+  .dot.done{background:rgba(255,255,255,.55)}
+
+  /* SLIDE CONTAINER */
+  .slide-wrap{max-width:820px;margin:32px auto;padding:0 20px 60px}
+  .slide{display:none;animation:fadeIn .3s ease}
+  .slide.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* SLIDE PARTS */
+  .slide-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--sage);margin-bottom:8px}
+  .slide-title{font-size:26px;font-weight:700;color:var(--teal);margin-bottom:6px;line-height:1.25}
+  .slide-subtitle{font-size:14px;color:#555;margin-bottom:24px}
+  .divider{height:3px;width:48px;background:var(--husk);border-radius:2px;margin:12px 0 24px}
+
+  /* CARDS */
+  .card-grid{display:grid;gap:16px;margin-bottom:24px}
+  .card-grid.two{grid-template-columns:1fr 1fr}
+  .card-grid.three{grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:580px){.card-grid.two,.card-grid.three{grid-template-columns:1fr}}
+  .card{background:var(--white);border-radius:10px;padding:20px;border-left:4px solid var(--husk)}
+  .card.teal{border-left-color:var(--teal)}
+  .card.sage{border-left-color:var(--sage)}
+  .card.palm{border-left-color:var(--palm)}
+  .card.danger{border-left-color:var(--danger)}
+  .card h4{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--teal);margin-bottom:8px}
+  .card p,.card ul{font-size:13px;color:#444;line-height:1.65}
+  .card ul{padding-left:16px}
+  .card ul li{margin-bottom:4px}
+
+  /* SCENARIO BOXES */
+  .scenario{background:var(--linen);border-radius:10px;padding:20px 24px;margin-bottom:16px;border:1.5px solid rgba(0,0,0,.07)}
+  .scenario .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+  .tag.red{background:#fde8e8;color:#a52020}
+  .tag.green{background:#e8f5e9;color:#2e6b32}
+  .scenario p{font-size:13px;color:#333;line-height:1.6}
+
+  /* CALLOUT */
+  .callout{background:var(--teal);color:var(--white);border-radius:10px;padding:20px 24px;margin-bottom:24px}
+  .callout p{font-size:14px;line-height:1.65;opacity:.92}
+  .callout strong{color:var(--husk)}
+
+  /* QUIZ */
+  .quiz-q{background:var(--white);border-radius:10px;padding:22px 24px;margin-bottom:20px;border:0.5px solid #ddd}
+  .quiz-q p{font-size:14px;font-weight:600;color:var(--teal);margin-bottom:14px}
+  .opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:8px;border:1.5px solid #e0e0e0;margin-bottom:8px;cursor:pointer;font-size:13px;color:#333;transition:border .2s,background .2s;line-height:1.5}
+  .opt:hover{border-color:var(--teal);background:#f0f8f9}
+  .opt.correct{border-color:var(--success);background:#e8f5e9;color:var(--success);font-weight:600}
+  .opt.wrong{border-color:var(--danger);background:#fde8e8;color:var(--danger)}
+  .opt.disabled{pointer-events:none}
+  .feedback{font-size:12px;margin-top:6px;padding:8px 12px;border-radius:6px;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{background:#e8f5e9;color:#2E7D32}
+  .feedback.no{background:#fde8e8;color:#c0392b}
+
+  /* DECLARATION */
+  .decl-box{background:var(--white);border:1.5px solid var(--husk);border-radius:10px;padding:24px;margin-bottom:24px}
+  .decl-box p{font-size:13px;color:#444;line-height:1.7;margin-bottom:12px}
+  .sig-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px}
+  .sig-field{flex:1;min-width:180px}
+  .sig-field label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);display:block;margin-bottom:6px}
+  .sig-field input{width:100%;border:1px solid #ccc;border-radius:6px;padding:8px 12px;font-family:'Montserrat',sans-serif;font-size:13px;color:#333}
+  .sig-field input:focus{outline:none;border-color:var(--teal)}
+
+  /* CERT */
+  .cert{background:var(--white);border:3px solid var(--teal);border-radius:14px;padding:32px 32px 24px;text-align:center;position:relative;overflow:hidden}
+  .cert::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:var(--husk)}
+  .cert-logo{font-size:20px;font-weight:700;letter-spacing:2px;color:var(--teal);margin-bottom:4px}
+  .cert-logo span{color:var(--husk)}
+  .cert h3{font-size:14px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px}
+  .cert-name{font-size:28px;font-weight:700;color:var(--teal);border-bottom:2px solid var(--linen);padding-bottom:8px;margin-bottom:6px}
+  .cert-course{font-size:13px;color:#666;margin-bottom:16px}
+  .cert-date{font-size:12px;color:#999;margin-bottom:20px}
+  .cert-badge{display:inline-block;background:var(--teal);color:var(--white);padding:6px 20px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+
+  /* BUTTONS */
+  .btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
+  .btn{padding:11px 28px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:background .2s,transform .1s}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--teal);color:var(--white)}
+  .btn-primary:hover{background:var(--teal-light)}
+  .btn-secondary{background:transparent;color:var(--teal);border:1.5px solid var(--teal)}
+  .btn-secondary:hover{background:#f0f8f9}
+  .btn-gold{background:var(--husk);color:var(--white)}
+  .btn-gold:hover{background:#a8882e}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  .score-badge{background:var(--teal);color:var(--white);border-radius:8px;padding:12px 20px;font-size:14px;font-weight:700;text-align:center;margin-bottom:20px}
+
+  .info-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+  .info-icon{width:28px;height:28px;border-radius:50%;background:var(--husk);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px}
+  .info-text{font-size:13px;color:#444;line-height:1.65}
+
+  .print-note{font-size:11px;color:#888;text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:20px">
+    <img src="astro-logo.png" alt="Astro" style="height:48px;width:auto;">
+  </div>
+  <div class="header-sub" style="color:var(--teal)">Ethics &amp; Integrity Training</div>
+  <div style="font-size:12px;opacity:.6;text-align:right">Version 1.0 &nbsp;|&nbsp; 2025</div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-label">
+    <span id="prog-text">Module 1 of 6</span>
+    <span id="prog-pct">0%</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+<div class="dots" id="dots"></div>
+
+<div class="slide-wrap">
+
+<!-- ===== SLIDE 0: WELCOME ===== -->
+<div class="slide active" id="s0">
+  <div class="slide-label">Welcome</div>
+  <div class="slide-title">Doing the right thing — every time.</div>
+  <div class="divider"></div>
+  <div class="callout">
+    <p>At Astro, we make exceptional easy — and that means doing business with integrity. This short training covers the behaviours we all have a responsibility to uphold: preventing <strong>corruption, bribery, fraud, conflicts of interest, and money laundering</strong>.</p>
+  </div>
+  <div class="card-grid two">
+    <div class="card teal">
+      <h4>Who this is for</h4>
+      <p>All Astro employees, contractors, and anyone acting on behalf of Astro Hospitality.</p>
+    </div>
+    <div class="card">
+      <h4>What you'll cover</h4>
+      <ul>
+        <li>Bribery &amp; corruption basics</li>
+        <li>Fraud awareness</li>
+        <li>Conflicts of interest</li>
+        <li>Money laundering red flags</li>
+        <li>How to report concerns</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card sage" style="margin-top:0">
+    <h4>Time commitment</h4>
+    <p>Approximately <strong>10–15 minutes</strong>. Complete all modules and the short quiz to receive your certificate of completion.</p>
+  </div>
+  <div class="btn-row">
+    <span></span>
+    <button class="btn btn-primary" onclick="goTo(1)">Start Training →</button>
+  </div>
+</div>
+
+<!-- ===== SLIDE 1: BRIBERY & CORRUPTION ===== -->
+<div class="slide" id="s1">
+  <div class="slide-label">Module 1 of 5</div>
+  <div class="slide-title">Bribery &amp; Corruption</div>
+  <div class="divider"></div>
+  <div class="card-grid two">
+    <div class="card danger">
+      <h4>What is bribery?</h4>
+      <p>Offering, giving, receiving, or asking for something of value to influence a decision or action in your favour. It doesn't have to be cash — it can be gifts, hospitality, discounts, or favours.</p>
+    </div>
+    <div class="card danger">
+      <h4>What is corruption?</h4>
+      <p>Misusing your position or authority for personal gain. This includes kickbacks, inflated contracts with preferred suppliers, or using Astro's resources for private benefit.</p>
+    </div>
+  </div>
+  <p style="font-size:13px;font-weight:700;color:var(--teal);margin:4px 0 12px;text-transform:uppercase;letter-spacing:.8px">Real-world scenarios</p>
+  <div class="scenario">
+    <span class="tag red">Red Flag</span>
+    <p>A supplier offers you a case of wine "just as a thank you" right before contract renewal time. Accepting this gift could compromise — or appear to compromise — your objectivity. <strong>Decline politely and report it to your manager.</strong></p>
+  </div>
+  <div class="scenario">
+    <span class="tag green">Acceptable</span>
+    <p>A supplier brings muffins to a team meeting. A small, infrequent, openly shared gift with no conditions attached is unlikely to create a conflict — but always use your judgement and check with your manager if unsure.</p>
+  </div>
+  <div class="callout">
+    <p><strong>The Astro rule:</strong> Never offer or accept anything of value that is intended to — or could be perceived to — influence a business decision. When in doubt, say no and tell someone.</p>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goTo(0)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(2)">Next Module →</button>
+  </div>
+</div>
+
+<!-- ===== SLIDE 2: FRAUD ===== -->
+<div class="slide" id="s2">
+  <div class="slide-label">Module 2 of 5</div>
+  <div class="slide-title">Fraud Awareness</div>
+  <div class="divider"></div>
+  <div class="card-grid three">
+    <div class="card">
+      <h4>Internal Fraud</h4>
+      <ul>
+        <li>Falsifying expense claims</li>
+        <li>Approving fictitious invoices</li>
+        <li>Timesheet manipulation</li>
+        <li>Misuse of company funds</li>
+      </ul>
+    </div>
+    <div class="card teal">
+      <h4>External Fraud</h4>
+      <ul>
+        <li>Phishing emails or fake suppliers</li>
+        <li>Invoice fraud / payment redirect</li>
+        <li>Identity theft</li>
+        <li>Cybercrime targeting business accounts</li>
+      </ul>
+    </div>
+    <div class="card palm">
+      <h4>Warning Signs</h4>
+      <ul>
+        <li>Unusual payment requests</li>
+        <li>Pressure to bypass approvals</li>
+        <li>Unexplained financial discrepancies</li>
+        <li>New banking details from known suppliers</li>
+      </ul>
+    </div>
+  </div>
+  <div class="info-row"><div class="info-icon">1</div><div class="info-text"><strong>Always verify</strong> bank account changes directly with a known contact at the supplier — never rely on details sent via email alone.</div></div>
+  <div class="info-row"><div class="info-icon">2</div><div class="info-text"><strong>Follow approval processes.</strong> Requests to skip sign-off "just this once" are a common fraud tactic. No exception is worth the risk.</div></div>
+  <div class="info-row"><div class="info-icon">3</div><div class="info-text"><strong>Protect your login credentials.</strong> Never share passwords. If you suspect your account has been compromised, report it to IT immediately.</div></div>
+  <div class="scenario" style="margin-top:16px">
+    <span class="tag red">Red Flag</span>
+    <p>You receive an email from a regular supplier saying they've changed their bank account and need payment sent to a new number urgently. <strong>Stop. Call the supplier on a known number to verify before processing anything.</strong></p>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goTo(1)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(3)">Next Module →</button>
+  </div>
+</div>
+
+<!-- ===== SLIDE 3: CONFLICTS OF INTEREST ===== -->
+<div class="slide" id="s3">
+  <div class="slide-label">Module 3 of 5</div>
+  <div class="slide-title">Conflicts of Interest</div>
+  <div class="divider"></div>
+  <div class="callout">
+    <p>A conflict of interest happens when your personal interests — financial, relational, or otherwise — could interfere with your ability to make fair, objective decisions on behalf of Astro. <strong>Having a conflict isn't automatically wrong — failing to disclose it is.</strong></p>
+  </div>
+  <div class="card-grid two">
+    <div class="card">
+      <h4>Common examples</h4>
+      <ul>
+        <li>Approving a supplier in which you hold a personal financial interest</li>
+        <li>Having a financial stake in a competing or partner business</li>
+        <li>Making purchasing decisions that personally benefit you financially</li>
+        <li>Accepting a secondary role or consultancy with a supplier without disclosure</li>
+      </ul>
+    </div>
+    <div class="card teal">
+      <h4>What to do</h4>
+      <ul>
+        <li>Disclose any potential conflict to your manager immediately</li>
+        <li>Remove yourself from the relevant decision or process</li>
+        <li>Document the disclosure</li>
+        <li>When in doubt — disclose. It's always better to raise it and have it cleared than to stay silent</li>
+      </ul>
+    </div>
+  </div>
+  <div class="scenario">
+    <span class="tag red">Red Flag</span>
+    <p>You're involved in selecting a new linen supplier and you realise you hold shares in one of the shortlisted companies. <strong>Disclose this immediately to your manager and step aside from the evaluation process — even if you believe your judgement wouldn't be affected.</strong></p>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goTo(2)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(4)">Next Module →</button>
+  </div>
+</div>
+
+<!-- ===== SLIDE 4: MONEY LAUNDERING ===== -->
+<div class="slide" id="s4">
+  <div class="slide-label">Module 4 of 5</div>
+  <div class="slide-title">Money Laundering</div>
+  <div class="divider"></div>
+  <div class="card sage" style="margin-bottom:20px">
+    <h4>What is money laundering?</h4>
+    <p>Making illegally obtained money appear legitimate — typically by passing it through a legitimate business. Even unknowingly facilitating this can expose Astro and its people to serious legal consequences.</p>
+  </div>
+  <div class="card-grid two">
+    <div class="card danger">
+      <h4>Red flags to watch for</h4>
+      <ul>
+        <li>Customers paying unusually large amounts in cash</li>
+        <li>Requests for payments to third parties unrelated to the transaction</li>
+        <li>Overpayments followed by refund requests to a different account</li>
+        <li>Customers unwilling to provide standard business information</li>
+        <li>Transactions that make no obvious commercial sense</li>
+      </ul>
+    </div>
+    <div class="card teal">
+      <h4>Your responsibilities</h4>
+      <ul>
+        <li>Know your customers and suppliers — basic due diligence is everyone's job</li>
+        <li>Be alert to unusual or complex payment arrangements</li>
+        <li>Never process a transaction you're uncomfortable with without raising it first</li>
+        <li>Report suspicious activity to your manager or Finance immediately</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">
+    <p><strong>Important:</strong> If you suspect money laundering, do <strong>not</strong> alert the customer or supplier — this is called "tipping off" and may itself be illegal. Report internally first and let management guide next steps.</p>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goTo(3)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(5)">Next Module →</button>
+  </div>
+</div>
+
+<!-- ===== SLIDE 5: REPORTING ===== -->
+<div class="slide" id="s5">
+  <div class="slide-label">Module 5 of 5</div>
+  <div class="slide-title">Speak Up — How to Report a Concern</div>
+  <div class="divider"></div>
+  <div class="callout">
+    <p>Astro is built on trust — between our team, our partners, and the hotels we serve. If something doesn't feel right, <strong>say something</strong>. Raising a concern is always the right call, and you will never be penalised for doing so in good faith.</p>
+  </div>
+  <div class="info-row"><div class="info-icon">1</div><div class="info-text"><strong>Talk to your manager</strong> — in most cases, this is the fastest and most direct route to resolving a concern.</div></div>
+  <div class="info-row"><div class="info-icon">2</div><div class="info-text"><strong>Go to senior leadership</strong> — if you're not comfortable speaking to your direct manager, escalate to a senior leader or director.</div></div>
+  <div class="info-row"><div class="info-icon">3</div>      <div class="info-text"><strong>Contact Reuben Beatson, Managing Director</strong> — for serious or sensitive matters, you can reach out confidentially at <a href="mailto:reuben@astro.net.nz" style="color:var(--husk)">reuben@astro.net.nz</a>.</div></div>
+  <div class="card-grid two" style="margin-top:20px">
+    <div class="card">
+      <h4>You are protected</h4>
+      <p>Any employee who raises a concern in good faith is protected from retaliation. This includes concerns that turn out to be unfounded, provided they were raised honestly.</p>
+    </div>
+    <div class="card teal">
+      <h4>Keep records</h4>
+      <p>If you witness something suspicious, note the date, time, people involved, and what you observed. Detailed records help investigations significantly.</p>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goTo(4)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(6)">Take the Quiz →</button>
+  </div>
+</div>
+
+<!-- ===== SLIDE 6: QUIZ ===== -->
+<div class="slide" id="s6">
+  <div class="slide-label">Assessment</div>
+  <div class="slide-title">Quick Knowledge Check</div>
+  <div class="divider"></div>
+  <p style="font-size:13px;color:#555;margin-bottom:20px">Answer all 5 questions. You need 4 out of 5 correct to pass.</p>
+
+  <!-- Q1 -->
+  <div class="quiz-q" id="q1">
+    <p>1. A supplier offers you a $200 restaurant voucher as a thank-you after you signed a new contract. What should you do?</p>
+    <div class="opt" onclick="ans(this,'q1','wrong')">A. Accept it — the contract is already signed so there's no conflict.</div>
+    <div class="opt" onclick="ans(this,'q1','correct')">B. Decline and report the offer to your manager.</div>
+    <div class="opt" onclick="ans(this,'q1','wrong')">C. Accept it but tell no one to avoid awkwardness.</div>
+    <div class="opt" onclick="ans(this,'q1','wrong')">D. Donate it to charity — that makes it acceptable.</div>
+    <div class="feedback" id="q1-fb"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-q" id="q2">
+    <p>2. You receive an email from a known supplier saying they've updated their bank account details. What is your first action?</p>
+    <div class="opt" onclick="ans(this,'q2','wrong')">A. Update the details and process the next payment straight away.</div>
+    <div class="opt" onclick="ans(this,'q2','wrong')">B. Reply to the email to confirm the change.</div>
+    <div class="opt" onclick="ans(this,'q2','correct')">C. Call the supplier on a previously known number to verify the change.</div>
+    <div class="opt" onclick="ans(this,'q2','wrong')">D. Forward the email to Finance for them to handle.</div>
+    <div class="feedback" id="q2-fb"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-q" id="q3">
+    <p>3. While evaluating suppliers, you realise you personally hold shares in one of the shortlisted companies. What should you do?</p>
+    <div class="opt" onclick="ans(this,'q3','wrong')">A. Continue — your financial interest won't influence your professional judgement.</div>
+    <div class="opt" onclick="ans(this,'q3','wrong')">B. Quietly remove the supplier from the list without telling anyone.</div>
+    <div class="opt" onclick="ans(this,'q3','correct')">C. Disclose your financial interest to your manager and remove yourself from the evaluation.</div>
+    <div class="opt" onclick="ans(this,'q3','wrong')">D. Only disclose it if that supplier is selected.</div>
+    <div class="feedback" id="q3-fb"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-q" id="q4">
+    <p>4. A customer wants to overpay their invoice and asks for the excess to be refunded to a different bank account. This is a potential sign of:</p>
+    <div class="opt" onclick="ans(this,'q4','wrong')">A. An honest accounting error — just process the refund as requested.</div>
+    <div class="opt" onclick="ans(this,'q4','correct')">B. Money laundering — report it internally before taking any action.</div>
+    <div class="opt" onclick="ans(this,'q4','wrong')">C. Nothing unusual — customers often use multiple accounts.</div>
+    <div class="opt" onclick="ans(this,'q4','wrong')">D. A sign they are a high-value customer and should be accommodated quickly.</div>
+    <div class="feedback" id="q4-fb"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-q" id="q5">
+    <p>5. You suspect a colleague of submitting false expense claims. What should you do?</p>
+    <div class="opt" onclick="ans(this,'q5','wrong')">A. Confront the colleague directly.</div>
+    <div class="opt" onclick="ans(this,'q5','wrong')">B. Do nothing — it's not your responsibility.</div>
+    <div class="opt" onclick="ans(this,'q5','wrong')">C. Wait and see if it happens again before acting.</div>
+    <div class="opt" onclick="ans(this,'q5','correct')">D. Report your concern to your manager or senior leadership promptly.</div>
+    <div class="feedback" id="q5-fb"></div>
+  </div>
+
+  <div id="quiz-result" style="display:none"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goTo(5)">← Back</button>
+    <button class="btn btn-gold" id="submit-btn" onclick="submitQuiz()" disabled>Submit Answers</button>
+  </div>
+</div>
+
+<!-- ===== SLIDE 7: COMPLETION ===== -->
+<div class="slide" id="s7">
+  <div class="slide-label">Completion</div>
+  <div class="slide-title">Almost done — one last step.</div>
+  <div class="divider"></div>
+  <div class="decl-box">
+    <p><strong>Declaration of Understanding</strong></p>
+    <p>By signing below, I confirm that I have completed the Astro Hospitality Ethics &amp; Integrity Training module and that I understand my obligations regarding the prevention of corruption, bribery, fraud, conflicts of interest, and money laundering.</p>
+    <p>I agree to act in accordance with Astro's values and to report any concerns or suspected breaches promptly.</p>
+    <div class="sig-row">
+      <div class="sig-field">
+        <label>Full Name</label>
+        <input type="text" id="sig-name" placeholder="Enter your full name" oninput="checkSig()">
+      </div>
+      <div class="sig-field">
+        <label>Role / Job Title</label>
+        <input type="text" id="sig-role" placeholder="Enter your role" oninput="checkSig()">
+      </div>
+      <div class="sig-field">
+        <label>Date</label>
+        <input type="text" id="sig-date" placeholder="DD/MM/YYYY" oninput="checkSig()">
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goTo(6)">← Back</button>
+    <button class="btn btn-gold" id="cert-btn" onclick="goTo(8)" disabled>Generate Certificate →</button>
+  </div>
+</div>
+
+<!-- ===== SLIDE 8: CERTIFICATE ===== -->
+<div class="slide" id="s8">
+  <div class="cert">
+    <div class="cert-logo">ASTRO<span>.</span></div>
+    <h3>Certificate of Completion</h3>
+    <div style="font-size:12px;color:#999;margin-bottom:12px">This certifies that</div>
+    <div class="cert-name" id="cert-name-out">—</div>
+    <div class="cert-course">has successfully completed</div>
+    <div style="font-size:16px;font-weight:700;color:var(--teal);margin-bottom:4px">Ethics &amp; Integrity Training</div>
+    <div style="font-size:13px;color:#666;margin-bottom:16px">Corruption &amp; Bribery Prevention | Fraud | Conflicts of Interest | Money Laundering</div>
+    <div class="cert-badge">Completed</div>
+    <div class="cert-date" id="cert-date-out"></div>
+    <div style="font-size:11px;color:#aaa;margin-top:8px">Astro Hospitality &nbsp;|&nbsp; hello@astro.net.nz &nbsp;|&nbsp; www.astro.net.nz</div>
+  </div>
+  <p class="print-note">Save this page or use your browser's Print function (Ctrl/Cmd + P) to save as PDF for your records.</p>
+  <div class="btn-row" style="justify-content:center;margin-top:24px">
+    <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+</div>
+
+</div><!-- end slide-wrap -->
+
+<script>
+const TOTAL=6;
+let cur=0;
+const answers={};
+const correctMap={q1:'B',q2:'C',q3:'C',q4:'B',q5:'D'};
+const feedback={
+  q1:{ok:"Correct. Even after a contract is signed, accepting gifts can create future obligations and perceptions of bias. Always decline and report.",no:"Not quite. The timing doesn't make it acceptable — any gift that could be linked to a business relationship should be declined and reported."},
+  q2:{ok:"Correct. Bank detail fraud is common. Always verify via a known phone number — never rely on the email alone.",no:"Not quite. Replying to the email or acting on it without verification is exactly how payment fraud succeeds. Always call a known contact."},
+  q3:{ok:"Correct. Holding shares in a supplier is a clear financial conflict of interest. Disclosing it and stepping aside protects you and ensures a fair process.",no:"Not quite. A personal financial interest in a supplier must be disclosed immediately — and you must remove yourself from the process, regardless of how objective you feel."},
+  q4:{ok:"Correct. Overpayment-then-refund-to-different-account is a classic money laundering pattern. Report internally before doing anything.",no:"Not quite. This is a recognised money laundering red flag. Report it internally before processing anything — don't alert the customer."},
+  q5:{ok:"Correct. Reporting promptly ensures concerns are investigated properly — staying silent allows fraud to continue and can implicate you.",no:"Not quite. All employees have a responsibility to report suspected fraud. Silence protects no one."}
+};
+
+function updateProgress(){
+  const idx=Math.min(cur,TOTAL);
+  const pct=Math.round((idx/TOTAL)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-text').textContent=cur===0?'Introduction':cur<=5?'Module '+cur+' of 5':cur===6?'Assessment':cur===7?'Declaration':'Complete';
+  const dots=document.getElementById('dots');
+  dots.innerHTML='';
+  for(let i=0;i<=TOTAL;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.onclick=(function(n){return function(){if(n<=cur)goTo(n)}})(i);
+    dots.appendChild(d);
+  }
+}
+
+function goTo(n){
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  cur=n;updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===8)fillCert();
+}
+
+function ans(el,qid,result){
+  if(el.classList.contains('disabled'))return;
+  const opts=el.parentNode.querySelectorAll('.opt');
+  opts.forEach(o=>o.classList.add('disabled'));
+  if(result==='correct'){
+    el.classList.add('correct');
+    answers[qid]=true;
+    showFb(qid,true);
+  } else {
+    el.classList.add('wrong');
+    answers[qid]=false;
+    opts.forEach(o=>{if(o.onclick&&o.getAttribute('onclick')&&o.getAttribute('onclick').includes("'correct'"))o.classList.add('correct')});
+    showFb(qid,false);
+  }
+  checkAllAnswered();
+}
+
+function showFb(qid,ok){
+  const fb=document.getElementById(qid+'-fb');
+  fb.className='feedback show '+(ok?'ok':'no');
+  fb.textContent=ok?feedback[qid].ok:feedback[qid].no;
+}
+
+function checkAllAnswered(){
+  const btn=document.getElementById('submit-btn');
+  if(Object.keys(answers).length===5)btn.disabled=false;
+}
+
+function submitQuiz(){
+  const score=Object.values(answers).filter(Boolean).length;
+  const res=document.getElementById('quiz-result');
+  res.style.display='block';
+  if(score>=4){
+    res.innerHTML='<div class="score-badge" style="background:var(--success)">You scored '+score+'/5 — passed! Great work.</div>';
+    setTimeout(()=>goTo(7),1200);
+  } else {
+    res.innerHTML='<div class="score-badge" style="background:var(--danger)">You scored '+score+'/5 — you need 4/5 to pass. Please review the modules and try again.</div>';
+    setTimeout(()=>{
+      Object.keys(answers).forEach(k=>delete answers[k]);
+      document.querySelectorAll('.opt').forEach(o=>{o.classList.remove('correct','wrong','disabled')});
+      document.querySelectorAll('.feedback').forEach(f=>{f.className='feedback'});
+      document.getElementById('submit-btn').disabled=true;
+      res.style.display='none';
+    },3000);
+  }
+}
+
+function checkSig(){
+  const n=document.getElementById('sig-name').value.trim();
+  const r=document.getElementById('sig-role').value.trim();
+  const d=document.getElementById('sig-date').value.trim();
+  document.getElementById('cert-btn').disabled=!(n&&r&&d);
+}
+
+function fillCert(){
+  const n=document.getElementById('sig-name').value.trim();
+  const d=document.getElementById('sig-date').value.trim();
+  document.getElementById('cert-name-out').textContent=n||'—';
+  document.getElementById('cert-date-out').textContent='Completed: '+d;
+}
+
+goTo(0);
+</script>
+</body>
+</html>
